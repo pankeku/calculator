@@ -1,43 +1,28 @@
 const numbers = document.querySelectorAll('.numbers');
 const input = document.querySelector('.calculator__input');
 const operators = document.querySelectorAll('.operator');
+const equal = document.querySelector('.equal');
 let firstNumber = '';
 let secondNumber = '';
-let selectedOperator = '';
+let evaluationAllowed = false;
 
 input.textContent = '';
 
-function add(n1, n2) {
-  return n1 + n2;
-}
-
-function substract(n1, n2) {
-  return n1 - n2;
-}
-
-function multiply(n1, n2) {
-  return n1 * n2;
-}
-
-function divide(n1, n2) {
-  return n1 / n2;
-}
-
 function operate(n1, n2, operator) {
   if (operator === '+') {
-    return add(n1, n2);
+    return n1 + n2;
   }
 
   if (operator === '-') {
-    return substract(n1, n2);
+    return n1 - n2;
   }
 
   if (operator === '*') {
-    return multiply(n1, n2);
+    return n1 * n2;
   }
 
   if (operator === '/') {
-    return divide(n1, n2);
+    return n1 / n2;
   }
 }
 
@@ -48,55 +33,73 @@ numbers.forEach((button) => {
       input.textContent = '';
     }
 
+      
     updateDisplay(button.textContent);
+
   });
 });
 
 operators.forEach((button) => {
   button.addEventListener('click', () => {
-    
-    if (firstNumber === '') {
-      firstNumber = input.textContent;
-      input.textContent = '';
-    } else if (secondNumber === '') {
-      secondNumber = input.textContent;
-      input.textContent = '';
-    }
+
+    setNumbers();
+
     evaluate();
+
     selectedOperator = button.textContent;
+
   });
 });
 
-function evaluate() {
+equal.addEventListener('click', () => {
 
-  if (selectedOperator === '=') {
-    let result = operate(
-      parseInt(firstNumber),
-      parseInt(secondNumber),
-      selectedOperator
-    );
-    updateDisplay(result);
+  setNumbers();
+  evaluate();
 
-    firstNumber = result;
+});
 
+
+function setNumbers() {
+
+  if (firstNumber === '') {
+    firstNumber = input.textContent;
+  } else if (secondNumber === '' && input.textContent != '') {
+    secondNumber = input.textContent;    
+    evaluationAllowed = true;
   }
 
+  clearDisplay();
+}
 
-  if (firstNumber !== '' && secondNumber !== '') {
-    let result = operate(
-      parseInt(firstNumber),
-      parseInt(secondNumber),
-      selectedOperator
-    );
+function evaluate() {
+
+  if (firstNumber !== '' && secondNumber !== '' && evaluationAllowed === true) {
+
+    let result = getResult();
+
+    input.textContent = '';
+
     updateDisplay(result);
 
     firstNumber = result;
 
+    evaluationAllowed = false;
   }
 }
 
-function updateDisplay(text) {
-  input.textContent === '0'
-    ? (input.textContent = text)
-    : (input.textContent += text);
+function updateDisplay(text) {  
+  input.textContent += text;
+}
+
+function clearDisplay() {
+  
+  input.textContent = '';
+}
+
+function getResult() {
+  return operate(
+    parseInt(firstNumber),
+    parseInt(secondNumber),
+    selectedOperator
+  );
 }
