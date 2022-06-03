@@ -2,6 +2,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    
 }
 
 .calculator {
@@ -10,8 +11,7 @@ body {
     align-items: center;
     justify-content: center;
     border: 3px solid #161853;
-    width: 280px;
-    
+    width: 280px;    
     
 }
 
@@ -41,5 +41,8 @@ body {
     
     border-radius: 20px;
     background-color: #FFC947;
+
+    font-weight: bold;
+    font-size: 18px;
 
 }
