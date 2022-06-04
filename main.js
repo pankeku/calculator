@@ -13,6 +13,12 @@ let secondNumber = '';
 let cache = '';
 let operator = '';
 
+window.addEventListener('keydown', function(e){
+  const key = document.querySelector(`.calculator__button[data-key="${e.key}"]`);
+  console.log(e.key);
+  key.click();
+});
+
 function operate(n1, n2, operator) {
   if (operator === '+') {
     return n1 + n2;
@@ -63,8 +69,6 @@ equal.addEventListener('click', () => {
 clear.addEventListener('click', () => {
   clearEverything();
 });
-
-
 
 function clearEverything() {
   firstNumber = '';
