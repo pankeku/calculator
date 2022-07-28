@@ -9,73 +9,86 @@ const percentage = document.querySelector('.percentage');
 const dot = document.querySelector('.dot');
 const backspace = document.querySelector('.backspace');
 
-let firstNumber = '';
-let secondNumber = '';
-let cache = '';
-let operator = '';
+const calculator = {
+  firstNumber: null,
+  secondNumber: null,
+  operator: null,
+  cache: '',
+};
 
 function operate(n1, n2, operator) {
+  let result = null;
+
   if (operator === '+') {
-    return n1 + n2;
+    result = n1 + n2;
   }
 
   if (operator === '-') {
-    return n1 - n2;
+    result = n1 - n2;
   }
 
   if (operator === '*') {
-    return n1 * n2;
+    result = n1 * n2;
   }
 
   if (operator === '/') {
-    return n1 / n2;
+    result = n1 / n2;
   }
+
+  return result;
 }
 
 function setNumbers() {
-  if (firstNumber !== '' && secondNumber === '' && operator !== '') {
-    secondNumber = cache;
-    cache = '';
+  if (
+    calculator.firstNumber !== null &&
+    (calculator.secondNumber === null || calculator.secondNumber === '') &&
+    calculator.operator !== null
+  ) {
+    calculator.secondNumber = calculator.cache;
+    calculator.cache = '';
   }
 
-  if (firstNumber !== '' && operator === '' && cache !== '') {
-    firstNumber = cache;
-    cache = '';
+  if (
+    calculator.firstNumber !== null &&
+    calculator.operator === null &&
+    calculator.cache !== ''
+  ) {
+    calculator.firstNumber = calculator.cache;
+    calculator.cache = '';
   }
 
-  if (firstNumber === '') {
-    firstNumber = cache;
-    cache = '';
+  if (calculator.firstNumber === null) {
+    calculator.firstNumber = calculator.cache;
+    calculator.cache = '';
   }
 }
 
 function evaluate() {
-  if (operator === '/' && secondNumber === '0') {
+  if (calculator.operator === '/' && calculator.secondNumber === '0') {
     clearAll();
     display.textContent = 'Bruh..';
   }
 
-  if (firstNumber != '' && secondNumber != '') {
+  if (calculator.firstNumber != null && calculator.secondNumber != null && calculator.secondNumber != '') {
     let result = operate(
-      parseFloat(firstNumber),
-      parseFloat(secondNumber),
-      operator
+      parseFloat(calculator.firstNumber),
+      parseFloat(calculator.secondNumber),
+      calculator.operator
     );
-    console.log(result);
     result = +result.toFixed(3);
 
     if (result.toString().length > 14) {
       result = result.toExponential(2).toString();
     }
 
-    cache = result;
+    calculator.cache = result;
 
     updateDisplay();
 
-    firstNumber = result;
-    secondNumber = '';
-    cache = '';
-    operator = '';
+    calculator.firstNumber = result;
+    calculator.secondNumber = null;
+    calculator.cache = '';
+    calculator.operator = null;
   }
 }
 
@@ -86,8 +99,29 @@ function displayHasDot() {
 }
 
 function updateDisplay() {
-  display.textContent = cache;
+  display.textContent = calculator.cache;
   displayHasDot();
+}
+
+function clearAll() {
+  calculator.firstNumber = null;
+  calculator.secondNumber = null;
+  calculator.cache = '';
+  calculator.operator = null;
+  display.textContent = '';
+  dot.classList.remove('calculator__button--disabled');
+  display.classList.remove('calculator__display--error');
+  deactivateButton();
+}
+
+function isDisplayError() {
+  if (calculator.cache.length > 14) {
+    display.classList.add('calculator__display--error');
+    return true;
+  } 
+
+    display.classList.remove('calculator__display--error');
+    return false;
 }
 
 numbers.forEach((button) => {
@@ -96,7 +130,7 @@ numbers.forEach((button) => {
       return;
     }
 
-    cache += button.textContent;
+    calculator.cache += button.textContent;
 
     updateDisplay();
     deactivateButton();
@@ -109,22 +143,12 @@ operators.forEach((button) => {
     setNumbers();
     evaluate();
 
-    operator = button.textContent;
+    calculator.operator = button.textContent;
     if (display.textContent !== '') {
       button.classList.add('calculator__button--active');
     }
   });
 });
-
-function isDisplayError() {
-  if (cache.length > 14) {
-    display.classList.add('calculator__display--error');
-    return true;
-  } else {
-    display.classList.remove('calculator__display--error');
-    return false;
-  }
-}
 
 equal.addEventListener('click', () => {
   setNumbers();
@@ -136,49 +160,49 @@ clear.addEventListener('click', () => {
 });
 
 plusMinus.addEventListener('click', () => {
-  cache = display.textContent;
-  if (cache !== '' && cache !== '0') {
-    if (cache.charAt(0) !== '-') {
-      cache = '-' + cache;
-    } else {
-      cache = cache.substring(1);
-    }
-    updateDisplay();
-  }
-});
+  calculator.cache = display.textContent;
 
-percentage.addEventListener('click', () => {
-  if (display.textContent !== '') {
-    cache = parseFloat(display.textContent) / 100;
+  if (calculator.cache == null && calculator.cache == '0') {
+    return;
+  }
+
+  if (calculator.cache.charAt(0) !== '-') {
+    calculator.cache = '-' + calculator.cache;
+  } else {
+    calculator.cache = calculator.cache.substring(1);
   }
   updateDisplay();
 });
 
+percentage.addEventListener('click', () => {
+  if (display.textContent == '') {
+    return;
+  }
+
+  let result = parseFloat(display.textContent) / 100;
+
+  if (result.toString().length > 14) {
+    result = result.toExponential(2).toString();
+  }
+
+  calculator.cache = result;
+  updateDisplay();
+});
+
 dot.addEventListener('click', () => {
-  cache = display.textContent;
-  if (!cache.includes('.')) {
-    cache += '.';
+  calculator.cache = display.textContent;
+  if (!calculator.cache.includes('.')) {
+    calculator.cache += '.';
     updateDisplay();
   }
 });
 
 backspace.addEventListener('click', () => {
-  cache = display.textContent;
-  cache = cache.substring(0, cache.length - 1);
+  calculator.cache = display.textContent;
+  calculator.cache = calculator.cache.substring(0, calculator.cache.length - 1);
   isDisplayError();
   updateDisplay();
 });
-
-function clearAll() {
-  firstNumber = '';
-  secondNumber = '';
-  cache = '';
-  operator = '';
-  display.textContent = '';
-  dot.classList.remove('calculator__button--disabled');
-  display.classList.remove('calculator__display--error');
-  deactivateButton();
-}
 
 function deactivateButton() {
   operators.forEach((button) => {
@@ -190,7 +214,11 @@ window.addEventListener('keydown', (e) => {
   const key = document.querySelector(
     `.calculator__button[data-key="${e.key}"]`
   );
-  key.click();
+
+  if (key != null) {
+    key.click();
+  }
+  
 });
 
 buttons.forEach((button) => {
